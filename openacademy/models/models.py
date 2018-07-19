@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
 
-from odoo import api, fields, models, exceptions
+from odoo import api, exceptions, fields, models
 
 
 class Course(models.Model):
@@ -45,8 +46,10 @@ class Session(models.Model):
     name = fields.Char(required=True)
     start_date = fields.Date(default=fields.Date.today)
     duration = fields.Float(digits=(6, 2), help='Duration in days.')
+    end_date = fields.Date(string='End date', store=True, compute='_get_end_date', inverse='_set_end_date')
     seats = fields.Integer(string='Number of seats')
     active = fields.Boolean(default=True)
+    color = fields.Integer()
 
     instructor_id = fields.Many2one('res.partner', string='Instructor',
                                     domain=[
@@ -58,6 +61,8 @@ class Session(models.Model):
     attendee_ids = fields.Many2many('res.partner', string='Attendees')
 
     taken_seats = fields.Float(string='Taken seats', compute='_taken_seats')
+
+    attendees_count = fields.Integer(string='Attendees count', compute='_get_attendees_count', store=True)
 
     @api.depends('seats', 'attendee_ids')
     def _taken_seats(self):
@@ -84,8 +89,35 @@ class Session(models.Model):
                 }
             }
 
-    @api.constrains('instructor_id','attendee_ids')
+    @api.depends('attendee_ids')
+    def _get_attendees_count(self):
+        for record in self:
+            record.attendees_count = len(record.attendee_ids)
+
+    @api.constrains('instructor_id', 'attendee_ids')
     def _check_instructor_not_in_attendees(self):
         for record in self:
             if record.instructor_id and record.instructor_id in record.attendee_ids:
                 raise exceptions.ValidationError('Instructor can not be attendee.')
+
+    @api.depends('start_date', 'duration')
+    def _get_end_date(self):
+        for record in self:
+            if not (record.start_date and record.duration):
+                record.end_date = record.start_date
+                continue
+
+            # Add duration to start_date; Monday + 5days = Saturday - 1second = Friday
+            start = fields.Datetime.from_string(record.start_date)
+            duration = timedelta(days=record.duration, seconds=-1)
+            record.end_date = start + duration
+
+    def _set_end_date(self):
+        for record in self:
+            if not (record.start_date and record.end_date):
+                continue
+
+            # Compute dates; Friday - Monday = 4days + 1day = 5days
+            start_date = fields.Datetime.from_string(record.start_date)
+            end_date = fields.Datetime.from_string(record.end_date)
+            record.duration = (end_date - start_date).days + 1
