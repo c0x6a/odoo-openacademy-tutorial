@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import api, fields, models, exceptions
 
 
 class Course(models.Model):
@@ -11,6 +11,32 @@ class Course(models.Model):
 
     responsible_id = fields.Many2one('res.users', ondelete='set null', string='Responsible', index=True)
     session_ids = fields.One2many('openacademy.session', inverse_name='course_id', string='Sessions')
+
+    @api.multi
+    def copy(self, default=None):
+        default = dict(default or {})
+
+        copied_count = self.search_count(
+            [('name', '=like', u'Copy of {}%'.format(self.name))]
+        )
+
+        if not copied_count:
+            new_name = u'Copy of {}'.format(self.name)
+        else:
+            new_name = u'Copy of {} ({})'.format(self.name, copied_count)
+
+        default['name'] = new_name
+        return super(Course, self).copy(default)
+
+    _sql_constraints = [
+        ('name_description_check',
+         'CHECK(name != description)',
+         'The title of the course should not be same as the description.'),
+
+        ('name_unique',
+         'UNIQUE(name)',
+         'The course title must be unique.'),
+    ]
 
 
 class Session(models.Model):
@@ -57,3 +83,9 @@ class Session(models.Model):
                     'message': 'Increase seats or remove attendees.',
                 }
             }
+
+    @api.constrains('instructor_id','attendee_ids')
+    def _check_instructor_not_in_attendees(self):
+        for record in self:
+            if record.instructor_id and record.instructor_id in record.attendee_ids:
+                raise exceptions.ValidationError('Instructor can not be attendee.')
