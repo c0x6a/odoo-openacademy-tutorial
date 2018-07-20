@@ -3,6 +3,18 @@ from datetime import timedelta
 
 from odoo import api, exceptions, fields, models
 
+STATE_DRAFT = 'draft'
+
+STATE_CONFIRMED = 'confirmed'
+
+STATE_DONE = 'done'
+
+STATE_CHOICES = [
+    (STATE_DRAFT, 'Draft'),
+    (STATE_CONFIRMED, 'Confirmed'),
+    (STATE_DONE, 'Done'),
+]
+
 
 class Course(models.Model):
     _name = 'openacademy.course'
@@ -63,6 +75,20 @@ class Session(models.Model):
     taken_seats = fields.Float(string='Taken seats', compute='_taken_seats')
 
     attendees_count = fields.Integer(string='Attendees count', compute='_get_attendees_count', store=True)
+
+    state = fields.Selection(selection=STATE_CHOICES, default=STATE_DRAFT)
+
+    @api.multi
+    def action_draft(self):
+        self.state = STATE_DRAFT
+
+    @api.multi
+    def action_confirm(self):
+        self.state = STATE_CONFIRMED
+
+    @api.multi
+    def action_done(self):
+        self.state = STATE_DONE
 
     @api.depends('seats', 'attendee_ids')
     def _taken_seats(self):
