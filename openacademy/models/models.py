@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
-from odoo import api, exceptions, fields, models, _
+from odoo import _, api, exceptions, fields, models
 
 STATE_DRAFT = 'draft'
 
