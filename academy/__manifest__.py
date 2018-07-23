@@ -9,6 +9,7 @@
     'depends': ['base'],
     'data': [
         'views/views.xml',
+        'views/academy_templates.xml',
         'views/templates.xml',
     ],
     'demo': [
