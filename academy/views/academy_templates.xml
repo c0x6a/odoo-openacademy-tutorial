@@ -4,7 +4,7 @@
       <title>Academy</title>
       <t t-foreach="teachers" t-as="teacher">
         <p>
-          Teacher: <t t-esc="teacher"/>
+          <t t-esc="teacher.id"/> <t t-esc="teacher.name"/>
         </p>
       </t>
     </template>
