@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
-from odoo import api, exceptions, fields, models
+from odoo import api, exceptions, fields, models, _
 
 STATE_DRAFT = 'draft'
 
@@ -30,13 +30,13 @@ class Course(models.Model):
         default = dict(default or {})
 
         copied_count = self.search_count(
-            [('name', '=like', u'Copy of {}%'.format(self.name))]
+            [('name', '=like', _(u'Copy of {}%').format(self.name))]
         )
 
         if not copied_count:
-            new_name = u'Copy of {}'.format(self.name)
+            new_name = _(u'Copy of {}').format(self.name)
         else:
-            new_name = u'Copy of {} ({})'.format(self.name, copied_count)
+            new_name = _(u'Copy of {} ({})').format(self.name, copied_count)
 
         default['name'] = new_name
         return super(Course, self).copy(default)
@@ -103,15 +103,15 @@ class Session(models.Model):
         if self.seats < 0:
             return {
                 'warning': {
-                    'title': 'Incorrect "seats" value',
-                    'message': 'The number of available seats may not be negative.'
+                    'title': _('Incorrect "seats" value'),
+                    'message': _('The number of available seats may not be negative.')
                 }
             }
         if self.seats < len(self.attendee_ids):
             return {
                 'warning': {
-                    'title': 'Too many attendees',
-                    'message': 'Increase seats or remove attendees.',
+                    'title': _('Too many attendees'),
+                    'message': _('Increase seats or remove attendees.'),
                 }
             }
 
@@ -124,7 +124,7 @@ class Session(models.Model):
     def _check_instructor_not_in_attendees(self):
         for record in self:
             if record.instructor_id and record.instructor_id in record.attendee_ids:
-                raise exceptions.ValidationError('Instructor can not be attendee.')
+                raise exceptions.ValidationError(_('Instructor can not be attendee.'))
 
     @api.depends('start_date', 'duration')
     def _get_end_date(self):
