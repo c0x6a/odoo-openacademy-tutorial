@@ -3,7 +3,7 @@ from odoo import http
 
 
 class Academy(http.Controller):
-    @http.route('/academy/academy/', auth='public', website=True)
+    @http.route('/academy/', auth='public', website=True)
     def index(self, **kwargs):
         teachers = http.request.env['academy.teacher']
         return http.request.render(
@@ -12,7 +12,7 @@ class Academy(http.Controller):
         )
 
     @http.route('/academy/<model("academy.teacher"):teacher>/', auth='public', website=True)
-    def teacher(self, teacher):
+    def teacher(self, teacher, *args, **kwargs):
         return http.request.render(
             'academy.biography',
             {'person': teacher}
