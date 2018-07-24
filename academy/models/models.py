@@ -8,3 +8,12 @@ class Teacher(models.Model):
 
     name = fields.Char()
     biography = fields.Html()
+
+    course_ids = fields.One2many('academy.course', inverse_name='teacher_id', string='Course')
+
+
+class Course(models.Model):
+    _name = 'academy.course'
+
+    name = fields.Char()
+    teacher_id = fields.Many2one('academy.teacher', string='Teacher')
