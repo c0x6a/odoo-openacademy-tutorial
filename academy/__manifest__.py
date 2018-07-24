@@ -6,7 +6,7 @@
     'website': 'https://carlosjoel.net',
     'category': 'Uncategorized',
     'version': '0.1',
-    'depends': ['base', 'website'],
+    'depends': ['base', 'website', 'mail'],
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',
