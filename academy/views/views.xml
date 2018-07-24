@@ -1,10 +1,19 @@
 <odoo>
   <data>
+    <!-- ACTIONS -->
+    <!-- Teacher actions -->
     <record id="action_academy_teachers" model="ir.actions.act_window">
       <field name="name">Academy Teachers</field>
       <field name="res_model">academy.teacher</field>
     </record>
+    <!-- Course actions -->
+    <record id="action_academy_courses" model="ir.actions.act_window">
+      <field name="name">Academy Courses</field>
+      <field name="res_model">academy.course</field>
+    </record>
 
+    <!-- VIEWS -->
+    <!-- Teacher views: form -->
     <record id="academy_teacher_form" model="ir.ui.view">
       <field name="name">Academy teachers: form</field>
       <field name="model">academy.teacher</field>
@@ -13,17 +22,63 @@
           <sheet>
             <group>
               <field name="name"/>
+              <field name="biography"/>
             </group>
             <group>
-              <field name="biography"/>
+              <field name="course_ids">
+                <tree string="Courses" editable="bottom">
+                  <field name="name"/>
+                </tree>
+              </field>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <!-- Course views: search -->
+    <record id="academy_course_search" model="ir.ui.view">
+      <field name="name">Academy courses: search</field>
+      <field name="model">academy.course</field>
+      <field name="arch" type="xml">
+        <search>
+          <field name="name"/>
+          <field name="teacher_id"/>
+        </search>
+      </field>
+    </record>
+    <!-- Course views: list -->
+    <record id="academy_course_list" model="ir.ui.view">
+      <field name="name">Academy course: list</field>
+      <field name="model">academy.course</field>
+      <field name="arch" type="xml">
+        <tree string="Courses">
+          <field name="name"/>
+          <field name="teacher_id"/>
+        </tree>
+      </field>
+    </record>
+    <!-- Course views: form -->
+    <record id="academy_course_form" model="ir.ui.view">
+      <field name="name">Academy course: form</field>
+      <field name="model">academy.course</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="teacher_id"/>
             </group>
           </sheet>
         </form>
       </field>
     </record>
 
+    <!-- MENUS -->
+    <!-- Teacher menus -->
     <menuitem sequence="0" id="menu_academy" name="Academy"/>
     <menuitem id="menu_academy_content" parent="menu_academy" name="Academy content"/>
     <menuitem id="menu_academy_content_teachers" parent="menu_academy_content" action="action_academy_teachers"/>
+    <!-- Course menus -->
+    <menuitem id="menu_academy_content_courses" parent="menu_academy_content" action="action_academy_courses"/>
   </data>
 </odoo>
